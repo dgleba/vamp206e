@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+function Purpose() {
+# begin block comment =============================
+: <<'END'
+
+#  Purpose:  tar the current folder and give the archive a useful name..
+
+#  VERSION info
+	ver:  2026-02-15a -- find files grep exclude then tar
+
+chmod +x ~/bin/tarc
+
+END
+# end block comment ===============================
+}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#cd ; 
+date ; set +vx  ; set -vx ; # echo off, then echo on
+
+# mkdir -p tmp/dglog
+mv log/development.log log/development.log.$(date +"__%Y.%m.%d_%H.%M.%S").log
+
+###### tar current folder..
+dts=$(date +"__%Y.%m.%d_%H.%M.%S")
+base=$(basename $PWD);export HOSTNAME;
+curfolder=${PWD##*/}
+echo 24546
+echo base=$base    hostname=$HOSTNAME  curfolder=$curfolder
+cd ..
+# get the current path and replace / with _
+fnpath="${PWD////_}" ; echo $fnpath
+
+
+tarf() {
+  #
+  # notice the grep exclude list. Check to see nothing important is excluded.
+  # 
+  tfile=/tmp/tmp-file-find-for-tar_${USER}_2324.txt; 
+  find $base -type f | \ 
+    grep -Ev  \
+	'.tgz|.zip|.tar.gz|log/|tmp/|certs/' | \
+    grep -Ev  \
+	'data/|sysdata/|datasys/' |  \
+	grep -Ev  \
+	'public/assets/|node_modules|site/static/|baserow605c/backend/templates' | \
+    grep -Ev  \
+	'/x/' |  \
+	grep -Ev  \
+	'/xclud/|adminer.php' > $tfile
+	
+  # Careful, the above excludes any data string|folder..
+  # cat $tfile
+  tar -czf $base-$HOSTNAME$fnpath$dts.tgz -T $tfile
+	cd $base
+}
+
+
+
+# ------------
+
+
+tarf
+#
+date
+#
+set +vx
+

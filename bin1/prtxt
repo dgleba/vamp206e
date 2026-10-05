@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# ~/bin/prtxt  - v07 - 2026-01-11 02:58 PM 
+# print txt files to out.txt for pasting to gpt question.
+# puts all code files in one file for upload to gpt.
+
+find . \
+  -path ./xclud -prune -o -name out.txt -prune -o \
+  -type f -exec file --mime {} \; | grep 'text/'  | cut -d: -f1 | sort \
+  | while read -r f; do
+      echo -e "###  ==================   $f   ==================\n"
+      cat "$f";       echo;
+  done > out.txt
+echo -e "\n  Files were printed to out.txt\n"
+
+

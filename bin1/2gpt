@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# run this from folder above djangosite.
+
+date
+set -vx
+
+export srcp=djangosite
+export desp=../to-gpt
+#export logp=/ap/log
+#export logf=rsynclog-red74-rut-24b.log
+
+mkdir -p $logp $desp
+rsync -ah    \
+  --exclude "**/blog**" \
+  --exclude "**/pchart**"   --exclude "**/scheduler**"   --exclude "**/tpm**" \
+  --exclude "**/css/bootstrap**" \
+  --exclude "**/js/bootstrap**"  \
+  --exclude "**htmx.min.js**"  \
+  --exclude "**db.sqlite3**"  \
+  --exclude "**/old**"  \
+  --exclude "**/test**" \
+	  --exclude "**/log**"  \
+	  --exclude "**/tmp/**" \
+	  --exclude "**/__pycache**" \
+	  --exclude "**/mnt/**" --exclude "**/am/**"   --exclude "**/media/**" \
+		--itemize-changes  --stats       $srcp $desp;
+
+#  --log-file=$logp/$logf     
+
+# more..
+
+cp -av ./docker-compose.yml  $desp
+rsync -a ./docker  $desp
+
+# rm empty folders
+find $desp -type d -empty -delete
+
+# clean .env passwords..
+find "$desp" -type f -name ".env**" | while IFS= read -r ssfile; do
+    sed '/pass\|password/Is/=.*/=/' "$ssfile" > "stripd$(basename "$ssfile")"
+	#   rm -- "$ssfile"
+done
+
+
+# print to out.txt
+cd $desp
+prtxt
+
+echo 'look in the ../to-gpt folder. '
